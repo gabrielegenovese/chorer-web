@@ -1,0 +1,49 @@
+<div class="p-2 m:p-4 lg:p-8 xl:p-10">
+
+  <div class="mx-auto max-w-xl lg:mx-0">
+    <h1 class="text-brand mt-2 flex items-center text-xl font-bold leading-6">
+      Chorer
+    </h1>
+    <p class="text-[2rem] mt-4 font-semibold leading-10 tracking-tighter text-lg text-balance">
+      Try out this new way to debug distributed applications!
+    </p>
+  </div>
+
+  <!-- GRID: 1/3 code input — 2/3 future graph area -->
+  <div class="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- LEFT COLUMN: Erlang code input -->
+    <div class="col-span-1 p-4 border rounded bg-white shadow">
+
+      <h2 class="text-xl font-bold mb-4">Erlang Code Input</h2>
+
+      <form action="/" method="post">
+      <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+
+      <textarea
+        name="code"
+        class="w-full h-96 border rounded p-2 font-mono"
+        placeholder="Paste Erlang code here..."
+      ><%= @code || "" %></textarea>
+
+      <button
+        type="submit"
+        class="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
+      >
+        Submit
+      </button>
+    </form>
+
+
+    </div>
+
+    <!-- RIGHT COLUMN: future DOT rendering (2/3) -->
+    <div class="col-span-2 p-4 border rounded bg-gray-50 shadow flex items-center justify-center">
+      <div class="text-gray-400 text-lg">
+        DOT graph output will appear here
+      </div>
+    </div>
+
+  </div>
+
+</div>
