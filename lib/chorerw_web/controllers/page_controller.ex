@@ -24,7 +24,7 @@ defmodule ChorerwWeb.PageController do
       end
 
     result = Chorerw.Chorex.deep_to_string(raw_result)
-    IO.inspect(result, label: "Chorer returned")
+    # IO.inspect(result, label: "Chorer returned")
 
     render(conn, :home,
       code: code,

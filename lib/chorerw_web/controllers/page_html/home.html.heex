@@ -1,90 +1,155 @@
-<div class="p-2 m:p-4 lg:p-8 xl:p-10">
+<div class="h-screen p-2 m:p-4 lg:p-8 xl:py-6 xl:px-10  overflow-hidden">
 
-  <div class="mx-auto max-w-xl lg:mx-0">
+  <div class="mx-auto max-w-xl lg:mx-0 mb-4">
     <h1 class="text-brand mt-2 flex items-center text-xl font-bold leading-6">
       Chorer
     </h1>
   </div>
 
-  <!-- GRID: 1/3 code input — 2/3 future graph area -->
-  <div class="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- FULL HEIGHT SPLIT GRID -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-120px)]">
 
-    <!-- LEFT COLUMN: Erlang code input -->
-    <div class="col-span-1 p-4 border rounded bg-white shadow">
+    <!-- LEFT COLUMN -->
+    <div class="col-span-1 p-4 border rounded bg-white shadow flex flex-col">
 
       <h2 class="text-xl font-bold mb-4">Erlang Code Input</h2>
 
-      <form action="/" method="post">
-      <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+      <form action="/" method="post" class="flex flex-col h-full">
+        <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
 
-      <textarea
-        name="code"
-        class="w-full h-96 border rounded p-2 font-mono"
-        placeholder="Paste Erlang code here..."
-      ><%= @code || "" %></textarea>
+        <!-- textarea takes all remaining height -->
+        <textarea
+          name="code"
+          class="flex-1 w-full border rounded p-2 font-mono resize-none"
+          placeholder="Paste Erlang code here..."
+        ><%= @code || "" %></textarea>
 
-      <button
-        type="submit"
-        class="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
-      >
-        Submit
-      </button>
-    </form>
-
-
+        <button
+          type="submit"
+          class="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
+        >
+          Submit
+        </button>
+      </form>
     </div>
 
-    <!-- RIGHT COLUMN: future DOT rendering (2/3) -->
-    <div class="col-span-2 p-4 border rounded bg-gray-50 shadow flex items-center justify-center">
-      <div class="col-span-2 p-4 border rounded bg-gray-50 shadow">
-        <%= if @result && map_size(@result) > 0 do %>
+    <!-- RIGHT COLUMN -->
+    <div class="col-span-2 p-4 border rounded bg-gray-50 shadow flex flex-col">
 
-          <label class="block font-semibold mb-2">Select LocalView:</label>
-          <select id="graph-select" class="border rounded p-2 mb-4 w-full">
-            <%= for {lv, _dot} <- @result do %>
-              <option value={lv}><%= lv %></option>
-            <% end %>
-          </select>
+      <%= if @result && map_size(@result) > 0 do %>
 
-          <div id="graph-container" class="border rounded bg-white p-4 min-h-96">
-            <!-- SVG will appear here -->
-          </div>
+        <label class="block font-semibold mb-2">Select LocalView:</label>
 
-        <% else %>
+        <select id="graph-select" class="border rounded p-2 mb-4 w-full">
+          <%= for {lv, _dot} <- @result do %>
+            <option value={lv}><%= lv %></option>
+          <% end %>
+        </select>
 
-          <div class="text-gray-400 text-lg flex items-center justify-center h-full">
-            DOT graph output will appear here
-          </div>
+        <div id="graph-container"
+          class="flex-1 border rounded bg-white p-0 overflow-hidden relative">
+        </div>
 
-        <% end %>
-      </div>
+      <% else %>
+
+        <div class="flex-1 text-gray-400 text-lg flex items-center justify-center">
+          DOT graph output will appear here
+        </div>
+
+      <% end %>
+
     </div>
   </div>
 </div>
 
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.5.0/dist/svg-pan-zoom.min.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const select = document.getElementById("graph-select");
   const container = document.getElementById("graph-container");
 
-  if (!select) return;
+  if (!select || !container) return;
 
   const graphs = <%= raw Jason.encode!(@result) %>;
 
   const viz = new Viz();
+  let panZoom = null;
+  
+  function forceSize(svg) {
+    const { width, height } = container.getBoundingClientRect();
+    svg.setAttribute("width", width);
+    svg.setAttribute("height", height);
+    svg.style.width = width + "px";
+    svg.style.height = height + "px";
+  }
+
+
+  function sizeSvg(svg) {
+    const { width, height } = container.getBoundingClientRect();
+
+    svg.style.position = "absolute";
+    svg.style.top = "0";
+    svg.style.left = "0";
+
+    svg.setAttribute("width",  width);
+    svg.setAttribute("height", height);
+
+    svg.style.width  = width + "px";
+    svg.style.height = height + "px";
+
+    if (panZoom) {
+      panZoom.resize();
+      panZoom.fit();
+      panZoom.center();
+    }
+  }
+
+  const ro = new ResizeObserver(() => {
+    const svg = container.querySelector("svg");
+    if (svg) sizeSvg(svg);
+  });
+
+  ro.observe(container);
 
   async function renderSelected() {
     const key = select.value;
     const dot = graphs[key];
 
     try {
-      const svg = await viz.renderString(dot);
-      container.innerHTML = svg;
+      const svgMarkup = await viz.renderString(dot);
+      container.innerHTML = svgMarkup;
+
+      const svg = container.querySelector("svg");
+
+      svg.style.position = "absolute";
+      svg.style.top = "0";
+      svg.style.left = "0";
+
+      forceSize(svg);
+
+      await new Promise(requestAnimationFrame);
+
+      if (panZoom) {
+        panZoom.destroy();
+      }
+
+      panZoom = svgPanZoom(svg, {
+        zoomEnabled: true,
+        controlIconsEnabled: true,
+        minZoom: 0.1,
+        fit: true,
+        center: true
+      });
+
+      forceSize(svg);
+
     } catch (err) {
-      container.innerHTML = "<p class='text-red-600'>Cannot render DOT graph</p>";
+      container.innerHTML =
+        "<p class='text-red-600'>Cannot render DOT graph</p>";
       console.error(err);
     }
   }
