@@ -4,9 +4,6 @@
     <h1 class="text-brand mt-2 flex items-center text-xl font-bold leading-6">
       Chorer
     </h1>
-    <p class="text-[2rem] mt-4 font-semibold leading-10 tracking-tighter text-lg text-balance">
-      Try out this new way to debug distributed applications!
-    </p>
   </div>
 
   <!-- GRID: 1/3 code input — 2/3 future graph area -->
@@ -39,11 +36,60 @@
 
     <!-- RIGHT COLUMN: future DOT rendering (2/3) -->
     <div class="col-span-2 p-4 border rounded bg-gray-50 shadow flex items-center justify-center">
-      <div class="text-gray-400 text-lg">
-        DOT graph output will appear here
+      <div class="col-span-2 p-4 border rounded bg-gray-50 shadow">
+        <%= if @result && map_size(@result) > 0 do %>
+
+          <label class="block font-semibold mb-2">Select LocalView:</label>
+          <select id="graph-select" class="border rounded p-2 mb-4 w-full">
+            <%= for {lv, _dot} <- @result do %>
+              <option value={lv}><%= lv %></option>
+            <% end %>
+          </select>
+
+          <div id="graph-container" class="border rounded bg-white p-4 min-h-96">
+            <!-- SVG will appear here -->
+          </div>
+
+        <% else %>
+
+          <div class="text-gray-400 text-lg flex items-center justify-center h-full">
+            DOT graph output will appear here
+          </div>
+
+        <% end %>
       </div>
     </div>
-
   </div>
-
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const select = document.getElementById("graph-select");
+  const container = document.getElementById("graph-container");
+
+  if (!select) return;
+
+  const graphs = <%= raw Jason.encode!(@result) %>;
+
+  const viz = new Viz();
+
+  async function renderSelected() {
+    const key = select.value;
+    const dot = graphs[key];
+
+    try {
+      const svg = await viz.renderString(dot);
+      container.innerHTML = svg;
+    } catch (err) {
+      container.innerHTML = "<p class='text-red-600'>Cannot render DOT graph</p>";
+      console.error(err);
+    }
+  }
+
+  select.addEventListener("change", renderSelected);
+  renderSelected();
+});
+</script>
