@@ -1,21 +1,23 @@
 defmodule ChorerwWeb.PageController do
   use ChorerwWeb, :controller
 
-  def create(conn, %{"code" => code}) do
-    # Temp options
-    entrypoint = "main/0"
-    min_lv = true
-    min_gv = false
-    gstates = true
+  def create(conn, params) do
+    code = Map.get(params, "code", "")
+    entry_point = Map.get(params, "entry_point", "")
+
+    IO.inspect(params["min_lv"], label: "MIN LV")
+    min_lv = params["min_lv"] == "on"
+    min_gv = params["min_gv"] == "on"
+    gstates = params["gstates"] == "on"
 
     cleaned = Chorerw.CodeNormalizer.normalize(code)
 
     code_c = String.to_charlist(cleaned)
-    entrypoint_c = String.to_charlist(entrypoint)
+    entry_point_c = String.to_charlist(entry_point)
 
     raw_result =
       try do
-        :chorer.analyse(code_c, entrypoint_c, min_lv, min_gv, gstates)
+        :chorer.analyse(code_c, entry_point_c, min_lv, min_gv, gstates)
       rescue
         e ->
           IO.puts("Chorer crashed:")
@@ -28,12 +30,24 @@ defmodule ChorerwWeb.PageController do
 
     render(conn, :home,
       code: code,
+      entry_point: entry_point,
+      min_lv: params["min_lv"],
+      min_gv: params["min_gv"],
+      gstates: params["gstates"],
       result: result,
       layout: false
     )
   end
 
   def home(conn, _params) do
-    render(conn, :home, code: nil, result: %{}, layout: false)
+    render(conn, :home,
+      code: nil,
+      entry_point: nil,
+      min_lv: true,
+      min_gv: nil,
+      gstates: true,
+      result: %{},
+      layout: false
+    )
   end
 end

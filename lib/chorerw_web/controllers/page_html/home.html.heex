@@ -1,9 +1,17 @@
-<div class="h-screen p-2 m:p-4 lg:p-8 xl:py-6 xl:px-10  overflow-hidden">
+<div class="h-screen p-4 px-6 overflow-hidden">
 
-  <div class="mx-auto max-w-xl lg:mx-0 mb-4">
-    <h1 class="text-brand mt-2 flex items-center text-xl font-bold leading-6">
+  <div class="p-2 flex items-center justify-between max-w-full mb-4">
+    <a href="/" class="text-brand text-4xl font-bold leading-6">
       Chorer
-    </h1>
+    </a>
+    <div class="flex">
+      <a href="/info" class="font-semibold text-blue-600">
+        Info
+      </a>
+      <a href="https://github.com/gabrielegenovese/chorer/" class="ml-12 font-semibold text-blue-600">
+        Github
+      </a>
+    </div>
   </div>
 
   <!-- FULL HEIGHT SPLIT GRID -->
@@ -17,8 +25,62 @@
       <form action="/" method="post" class="flex flex-col h-full">
         <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
 
-        <!-- textarea takes all remaining height -->
+        <!-- OPTIONS PANEL -->
+        <div class="mb-4 space-y-3">
+
+          <!-- Entry point -->
+          <div>
+            <label class="block font-semibold mb-1">Entry point</label>
+            <input
+              type="text"
+              name="entry_point"
+              value={@entry_point || ""}
+              placeholder="e.g. main/0"
+              class="w-full border rounded p-2"
+            />
+          </div>
+
+          <!-- Minimize Local View -->
+          <label class="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              name="min_lv"
+              value={@min_lv}
+              class="h-4 w-4"
+              checked={@min_lv != nil}
+            />
+            <span>Minimize Local View</span>
+          </label>
+
+          <!-- Minimize Global View -->
+          <label class="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              name="min_gv"
+              value={@min_gv}
+              class="h-4 w-4"
+              checked={@min_gv != nil}
+            />
+            <span>Minimize Global View</span>
+          </label>
+
+          <!-- Global State Flag -->
+          <label class="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              name="gstates"
+              value={@gstates}
+              class="h-4 w-4"
+              checked={@gstates != nil}
+            />
+            <span>Global State Flag</span>
+          </label>
+
+        </div>
+
+        <!-- textarea takes remaining height -->
         <textarea
+          id="editor"
           name="code"
           class="flex-1 w-full border rounded p-2 font-mono resize-none"
           placeholder="Paste Erlang code here..."
@@ -38,17 +100,32 @@
 
       <%= if @result && map_size(@result) > 0 do %>
 
-        <label class="block font-semibold mb-2">Select LocalView:</label>
-
-        <select id="graph-select" class="border rounded p-2 mb-4 w-full">
+        <!-- Tabs attached to SVG box -->
+        <div id="graph-tabs" class="flex space-x-2 mb-0">
           <%= for {lv, _dot} <- @result do %>
-            <option value={lv}><%= lv %></option>
+            <button
+              data-tab={lv}
+              class={
+                "tab-btn px-3 py-1 rounded-t font-semibold border border-b-0 " <>
+                  if lv == "gv" do
+                    # ACTIVE TAB
+                    "bg-white text-blue-700 border-blue-300"
+                  else
+                    # INACTIVE TAB
+                    "bg-blue-100 text-gray-700 border-blue-200"
+                  end
+              }
+            >
+              <%= if lv == "gv", do: "GlobalView", else: lv %>
+            </button>
           <% end %>
-        </select>
-
-        <div id="graph-container"
-          class="flex-1 border rounded bg-white p-0 overflow-hidden relative">
         </div>
+
+        <!-- SVG container with top border aligned with tabs -->
+        <div
+          id="graph-container"
+          class="flex-1 border border-blue-300 rounded-t-none rounded-b bg-white overflow-hidden relative"
+        ></div>
 
       <% else %>
 
@@ -69,10 +146,10 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const select = document.getElementById("graph-select");
   const container = document.getElementById("graph-container");
+  const tabButtons = document.querySelectorAll(".tab-btn");
 
-  if (!select || !container) return;
+  if (tabButtons.length === 0) return;
 
   const graphs = <%= raw Jason.encode!(@result) %>;
 
@@ -86,7 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
     svg.style.width = width + "px";
     svg.style.height = height + "px";
   }
-
 
   function sizeSvg(svg) {
     const { width, height } = container.getBoundingClientRect();
@@ -115,8 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   ro.observe(container);
 
-  async function renderSelected() {
-    const key = select.value;
+  async function renderSelected(key) {
     const dot = graphs[key];
 
     try {
@@ -130,7 +205,6 @@ document.addEventListener("DOMContentLoaded", () => {
       svg.style.left = "0";
 
       forceSize(svg);
-
       await new Promise(requestAnimationFrame);
 
       if (panZoom) {
@@ -148,13 +222,29 @@ document.addEventListener("DOMContentLoaded", () => {
       forceSize(svg);
 
     } catch (err) {
-      container.innerHTML =
-        "<p class='text-red-600'>Cannot render DOT graph</p>";
+      container.innerHTML = "<p class='text-red-600'>Cannot render DOT graph</p>";
       console.error(err);
     }
   }
 
-  select.addEventListener("change", renderSelected);
-  renderSelected();
+  tabButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      tabButtons.forEach(b => {
+        if (b.dataset.tab === "gv") {
+          b.className = "tab-btn px-3 py-1 rounded-t font-semibold bg-blue-600 text-white";
+        } else {
+          b.className = "tab-btn px-3 py-1 rounded-t font-semibold bg-blue-300 text-gray-800";
+        }
+      });
+
+      btn.classList.add("!bg-blue-800", "!text-white");
+      
+      renderSelected(btn.dataset.tab);
+    });
+  });
+
+  const defaultTab = Array.from(tabButtons).find(b => b.dataset.tab === "gv") || tabButtons[0];
+
+  defaultTab.click();
 });
 </script>
