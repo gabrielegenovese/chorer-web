@@ -18,11 +18,12 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-120px)]">
 
     <!-- LEFT COLUMN -->
-    <div class="col-span-1 p-4 border rounded bg-white shadow flex flex-col">
+    <div class="col-span-1 p-4 border rounded bg-white shadow flex flex-col min-h-0">
 
       <h2 class="text-xl font-bold mb-4">Erlang Code Input</h2>
 
-      <form action="/" method="post" class="flex flex-col h-full">
+      <form action="/" method="post" class="flex flex-col h-full min-h-0">
+
         <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
 
         <!-- OPTIONS PANEL -->
@@ -48,7 +49,7 @@
               <span>Entry point</span>
               <div class="relative group inline-block">
                 <span
-                  class="inline-flex items-center justify-center w-6 h-6 rounded-full 
+                  class="ml-2 inline-flex items-center justify-center w-6 h-6 rounded-full 
                         bg-gray-300 text-gray-700 text-sm font-bold cursor-pointer"
                 >?</span>
                 <div
@@ -60,9 +61,7 @@
                   Use Erlang format: <code>name/arity</code>.  
                 </div>
               </div>
-
             </label>
-
             <input
               id="entry-input"
               type="text"
@@ -75,17 +74,19 @@
 
 
           <!-- Minimize Local View -->
-          <label class="flex items-center space-x-2 relative">
-            <input
-              id="min_lv"
-              type="checkbox"
-              name="min_lv"
-              value="true"
-              class="h-4 w-4"
-              checked={@min_lv}
-            />
-            <span>Minimize Local View</span>
-            <div class="relative group inline-block">
+          <div class="flex">
+            <label class="flex items-center space-x-2 relative">
+              <input
+                id="min_lv"
+                type="checkbox"
+                name="min_lv"
+                value="true"
+                class="h-4 w-4"
+                checked={@min_lv}
+              />
+              <span>Minimize Local View</span>
+            </label>
+            <div class="ml-2 relative group inline-block">
               <span
                 class="ml-1 inline-flex items-center justify-center w-6 h-6 rounded-full 
                       bg-gray-300 text-gray-700 text-sm font-bold cursor-pointer"
@@ -98,20 +99,22 @@
                 Applies minimization to the localview.
               </div>
             </div>
-          </label>
+          </div>
 
           <!-- Minimize Global View -->
-          <label class="flex items-center space-x-2 relative">
-            <input
-              id="min_gv"
-              type="checkbox"
-              name="min_gv"
-              value="true"
-              class="h-4 w-4"
-              checked={@min_gv}
-            />
-            <span>Minimize Global View</span>
-            <div class="relative group inline-block">
+          <div class="flex">
+            <label class="flex items-center space-x-2 relative">
+              <input
+                id="min_gv"
+                type="checkbox"
+                name="min_gv"
+                value="true"
+                class="h-4 w-4"
+                checked={@min_gv}
+              />
+              <span>Minimize Global View</span>
+            </label>
+            <div class="ml-2 relative group inline-block">
               <span
                 class="ml-1 inline-flex items-center justify-center w-6 h-6 rounded-full 
                       bg-gray-300 text-gray-700 text-sm font-bold cursor-pointer"
@@ -124,20 +127,22 @@
                 Applies minimization to the globalview.
               </div>
             </div>
-          </label>
+          </div>
 
           <!-- Global State Flag -->
-          <label class="flex items-center space-x-2 relative">
-            <input
-              id="gstates"
-              type="checkbox"
-              name="gstates"
-              value="true"
-              class="h-4 w-4"
-              checked={@gstates}
-            />
-            <span>Global State History</span>
-            <div class="relative group inline-block">
+          <div class="flex">
+            <label class="flex items-center space-x-2 relative">
+              <input
+                id="gstates"
+                type="checkbox"
+                name="gstates"
+                value="true"
+                class="h-4 w-4"
+                checked={@gstates}
+              />
+              <span>Global State History</span>
+            </label>
+            <div class="ml-2 relative group inline-block">
               <span
                 class="ml-1 inline-flex items-center justify-center w-6 h-6 rounded-full 
                       bg-gray-300 text-gray-700 text-sm font-bold cursor-pointer"
@@ -150,19 +155,11 @@
                 Consider the trace history when computing the globalview.
               </div>
             </div>
-          </label>
-
-
-
+          </div>
         </div>
 
-        <!-- textarea takes remaining height -->
-        <textarea
-          id="editor"
-          name="code"
-          class="flex-1 w-full border rounded p-2 font-mono resize-none"
-          placeholder="Paste Erlang code here..."
-        ><%= @code || "" %></textarea>
+        <div id="editor" class="flex-1 w-full border rounded font-mono min-h-0 overflow-auto"></div>
+        <input type="hidden" id="code-input" name="code" value={@code}>
 
         <button
           type="submit"
@@ -180,16 +177,21 @@
 
         <!-- Tabs attached to SVG box -->
         <div id="graph-tabs" class="flex space-x-2 mb-0">
-          <%= for {lv, _dot} <- @result do %>
+
+          <% ordered =
+            Enum.sort_by(@result, fn {lv, _dot} ->
+              if lv == "gv", do: 0, else: 1
+            end)
+          %>
+
+          <%= for {lv, _dot} <- ordered do %>
             <button
               data-tab={lv}
               class={
                 "tab-btn px-3 py-1 rounded-t font-semibold border border-b-0 " <>
                   if lv == "gv" do
-                    # ACTIVE TAB
                     "bg-white text-blue-700 border-blue-300"
                   else
-                    # INACTIVE TAB
                     "bg-blue-100 text-gray-700 border-blue-200"
                   end
               }
@@ -221,17 +223,35 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.5.0/dist/svg-pan-zoom.min.js"></script>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5/lib/codemirror.css">
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5/lib/codemirror.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5/mode/erlang/erlang.js"></script>
+
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const examples = <%= raw Jason.encode!(@examples) %>;
 
   const select = document.getElementById("example-select");
   const entry = document.getElementById("entry-input");
-  const editor = document.getElementById("editor");
 
   const minLv = document.getElementById("min_lv");
   const minGv = document.getElementById("min_gv");
   const gstates = document.getElementById("gstates");
+
+  const hiddenInput = document.getElementById("code-input");
+
+  const editor = CodeMirror(document.getElementById("editor"), {
+    value: hiddenInput.value || "",
+    mode: "erlang",
+    lineNumbers: true,
+    lineWrapping: true,
+    theme: "default"
+  });
+
+  editor.on("change", () => {
+    hiddenInput.value = editor.getValue();
+  });
 
   select.addEventListener("change", () => {
     const key = select.value;
@@ -241,7 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Fill inputs
     entry.value = ex.entry || "";
-    editor.value = ex.code || "";
+    editor.setValue(ex.code);
 
     // Update checkboxes
     minLv.checked = !!ex.min_lv;

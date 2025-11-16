@@ -5,7 +5,6 @@ defmodule ChorerwWeb.PageController do
     code = Map.get(params, "code", "")
     entry_point = Map.get(params, "entry_point", "")
 
-    IO.inspect(params["min_lv"], label: "MIN LV")
     min_lv = params["min_lv"] == "on"
     min_gv = params["min_gv"] == "on"
     gstates = params["gstates"] == "on"
@@ -29,7 +28,7 @@ defmodule ChorerwWeb.PageController do
     # IO.inspect(result, label: "Chorer returned")
 
     render(conn, :home,
-      examples: %{},
+      examples: Chorerw.Examples.all(),
       code: code,
       entry_point: entry_point,
       min_lv: params["min_lv"],
@@ -42,7 +41,7 @@ defmodule ChorerwWeb.PageController do
 
   def home(conn, _params) do
     render(conn, :home,
-      examples: %{},
+      examples: Chorerw.Examples.all(),
       code: nil,
       entry_point: nil,
       min_lv: true,

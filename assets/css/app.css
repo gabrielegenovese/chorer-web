@@ -3,3 +3,18 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+/* Make the editor container behave as a flex container */
+#editor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* defensive */
+}
+
+/* Make CodeMirror fill and be scrollable inside the container */
+.CodeMirror {
+  flex: 1 1 auto;
+  height: 100% !important;
+  min-height: 0;
+}
