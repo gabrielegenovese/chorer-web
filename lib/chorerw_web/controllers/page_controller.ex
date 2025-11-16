@@ -29,6 +29,7 @@ defmodule ChorerwWeb.PageController do
     # IO.inspect(result, label: "Chorer returned")
 
     render(conn, :home,
+      examples: %{},
       code: code,
       entry_point: entry_point,
       min_lv: params["min_lv"],
@@ -41,6 +42,7 @@ defmodule ChorerwWeb.PageController do
 
   def home(conn, _params) do
     render(conn, :home,
+      examples: %{},
       code: nil,
       entry_point: nil,
       min_lv: true,
@@ -49,5 +51,9 @@ defmodule ChorerwWeb.PageController do
       result: %{},
       layout: false
     )
+  end
+
+  def info(conn, _params) do
+    render(conn, :info, layout: false)
   end
 end

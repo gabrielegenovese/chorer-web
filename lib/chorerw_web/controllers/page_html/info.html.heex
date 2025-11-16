@@ -1,0 +1,128 @@
+<div class="min-h-screen w-full flex justify-center px-6 py-10 bg-gray-50">
+  <div class="max-w-3xl w-full space-y-12 text-gray-900">
+
+    <!-- TITLE -->
+    <div class="text-center">
+      <a href="/" class="text-brand text-3xl font-bold mb-2 underline"><h1>Chorer</h1></a>
+      <p class="text-lg text-gray-600 mt-2">
+        A static analyzer to generate Choreography Automata<br>from Erlang source, with a bottom-up approach. 
+      </p>
+    </div>
+
+    <!-- SECTION 1: WHAT IS CHORER -->
+    <section>
+      <h2 class="text-brand text-2xl font-semibold mb-3">What is Chorer?</h2>
+
+      <p class="leading-relaxed">
+        Chorer is an analysis tool that examines Erlang programs and extracts formal models of their
+        communication behaviour. Its purpose is to help developers uncover communication bugs in
+        distributed and actor-based systems by using insights from
+        <strong class="text-blue-600">Choreography Automata</strong>.
+      </p>
+
+    </section>
+
+
+    <!-- SECTION 2: CHOREOGRAPHY AUTOMATA -->
+    <section>
+      <h2 class="text-brand text-2xl font-semibold mb-3">Choreography Automata<sup>1</sup></h2>
+      <p class="leading-relaxed">
+        A <strong class="text-blue-600">Choreography Automaton</strong> is a labelled transition system that represents the
+        communication behaviour of concurrent systems. Each transition is annotated with a
+        communication action (such as sending or receiving messages), and the automaton describes all
+        possible evolutions of the system.
+      </p>
+
+      <p class="leading-relaxed mt-3">
+        Formally, the concept was introduced to model structured interactions and communication
+        protocols in message-passing programs. Choreography Automata provide a foundation for
+        verification, analysis, and reasoning on distributed systems.
+      </p>
+    </section>
+
+    <!-- SECTION 3: LOCAL VIEW -->
+    <section>
+      <h2 class="text-brand text-2xl font-semibold mb-3">Local View</h2>
+      <p class="leading-relaxed">
+        A <strong class="text-blue-600">Local View</strong> denotes the behaviour of a <em>single function</em> within
+        the program. It focuses on the transitions that originate from that function, describing the
+        messages it sends and receives along with possible internal evolutions.
+      </p>
+    </section>
+
+    <!-- SECTION 4: GLOBAL VIEW -->
+    <section>
+      <h2 class="text-brand text-2xl font-semibold mb-3">Global View</h2>
+      <p class="leading-relaxed">
+        The <strong class="text-blue-600">Global View</strong> represents the entire behaviour of a system in a single automaton.
+        Its transitions describe communication actions across all processes. This
+        gives an overview of the complete behaviour of the program.
+      </p>
+    </section>
+
+    <!-- SECTION 5: HOW IT WORKS -->
+    <section>
+      <h2 class="text-brand text-2xl font-semibold mb-3">How does it work?</h2>
+
+      <p class="leading-relaxed mb-6">
+        Chorer reconstructs the possible message-passing interactions between Erlang processes and
+        represents them using <em>Local Views</em> and a <em>Global View</em>.  
+        The extraction follows a bottom-up, over-approximating approach: any communication that
+        <em>might</em> occur is included. This ensures that potential issues, including subtle
+        concurrency bugs, are highlighted without being missed.
+      </p>
+
+      <h3 class="text-brand text-xl font-semibold mb-3">Extraction steps</h3>
+
+      <ol class="list-decimal list-inside space-y-3 leading-relaxed">
+        <li>
+          The input file is parsed and basic syntactic and structural checks are performed.
+          Chorer identifies processes, calls, and communication constructs.
+        </li>
+        <li>
+          For each discovered actor, the tool extracts a <strong class="text-blue-600">Local View</strong>, describing
+          the behavior of that actor in isolation, including its possible send/receive actions.
+        </li>
+        <li>
+          All Local Views are combined into a <strong class="text-blue-600">Global View</strong>, reconstructing the
+          inter-process communication structure of the whole system.
+        </li>
+        <li>
+          The generated automata can be minimized and further analyzed to detect inconsistent
+          communication patterns or potential concurrency bugs.
+        </li>
+      </ol>
+
+    <p class="leading-relaxed mt-3">
+      For a deeper explanation of the ideas behind Chorer, including its theoretical foundations,
+      strengths, and limitations, please refer to the accompanying 
+      <a href="https://gabrigeno.cappuccino.ovh/pdf/forte/forte.pdf" class="text-blue-600 underline">paper</a><sup>2</sup> and 
+      <a href="https://gabrigeno.cappuccino.ovh/pdf/forte/poster.pdf" class="text-blue-600 underline">poster</a>.
+    </p>
+
+    </section>
+
+
+    <!-- SECTION 6: REFERENCES -->
+    <section>
+      <h2 class="text-brand text-2xl font-semibold mb-3">References</h2>
+
+      <ol class="list-decimal list-inside space-y-2 text-gray-800 leading-relaxed">
+        <li>
+          Barbanera, Franco, Ivan Lanese, and Emilio Tuosto. "Choreography automata." 
+          International Conference on Coordination Languages and Models. Cham: Springer 
+          International Publishing, 2020.
+        </li>
+
+        <li>
+          Genovese, Gabriele, Ivan Lanese, Cinzia Di Giusto, Emilio Tuosto, and Germán Vidal.
+          "Choreographies for Program Understanding." 
+          International Conference on Formal Techniques for Distributed Objects, 
+          Components, and Systems. Cham: Springer Nature Switzerland, 2025.
+        </li>
+
+      </ol>
+    </section>
+
+  </div>
+</div>

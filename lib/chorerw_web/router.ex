@@ -18,6 +18,7 @@ defmodule ChorerwWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/info", PageController, :info
 
     post "/", PageController, :create
   end

@@ -28,10 +28,43 @@
         <!-- OPTIONS PANEL -->
         <div class="mb-4 space-y-3">
 
-          <!-- Entry point -->
+          <!-- Select Example -->
           <div>
-            <label class="block font-semibold mb-1">Entry point</label>
+            <label class="block font-semibold mb-1">Load Example</label>
+            <select
+              id="example-select"
+              class="w-full border rounded p-2 bg-gray-100"
+            >
+              <option value="">-- choose an example --</option>
+              <%= for {key, ex} <- @examples do %>
+                <option value={key}><%= ex.title %></option>
+              <% end %>
+            </select>
+          </div>
+
+          <!-- Entry point -->
+          <div class="relative">
+            <label class="block font-semibold mb-1 flex items-center space-x-1">
+              <span>Entry point</span>
+              <div class="relative group inline-block">
+                <span
+                  class="inline-flex items-center justify-center w-6 h-6 rounded-full 
+                        bg-gray-300 text-gray-700 text-sm font-bold cursor-pointer"
+                >?</span>
+                <div
+                  class="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 p-2 text-sm text-white 
+                        bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 
+                        transition-opacity pointer-events-none z-10"
+                >
+                  The function where the analysis should start.  
+                  Use Erlang format: <code>name/arity</code>.  
+                </div>
+              </div>
+
+            </label>
+
             <input
+              id="entry-input"
               type="text"
               name="entry_point"
               value={@entry_point || ""}
@@ -40,41 +73,86 @@
             />
           </div>
 
+
           <!-- Minimize Local View -->
-          <label class="flex items-center space-x-2">
+          <label class="flex items-center space-x-2 relative">
             <input
+              id="min_lv"
               type="checkbox"
               name="min_lv"
-              value={@min_lv}
+              value="true"
               class="h-4 w-4"
-              checked={@min_lv != nil}
+              checked={@min_lv}
             />
             <span>Minimize Local View</span>
+            <div class="relative group inline-block">
+              <span
+                class="ml-1 inline-flex items-center justify-center w-6 h-6 rounded-full 
+                      bg-gray-300 text-gray-700 text-sm font-bold cursor-pointer"
+              >?</span>
+              <div
+                class="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 p-2 text-sm text-white 
+                      bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 
+                      transition-opacity pointer-events-none z-10"
+              >
+                Applies minimization to the localview.
+              </div>
+            </div>
           </label>
 
           <!-- Minimize Global View -->
-          <label class="flex items-center space-x-2">
+          <label class="flex items-center space-x-2 relative">
             <input
+              id="min_gv"
               type="checkbox"
               name="min_gv"
-              value={@min_gv}
+              value="true"
               class="h-4 w-4"
-              checked={@min_gv != nil}
+              checked={@min_gv}
             />
             <span>Minimize Global View</span>
+            <div class="relative group inline-block">
+              <span
+                class="ml-1 inline-flex items-center justify-center w-6 h-6 rounded-full 
+                      bg-gray-300 text-gray-700 text-sm font-bold cursor-pointer"
+              >?</span>
+              <div
+                class="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 p-2 text-sm text-white 
+                      bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 
+                      transition-opacity pointer-events-none z-10"
+              >
+                Applies minimization to the globalview.
+              </div>
+            </div>
           </label>
 
           <!-- Global State Flag -->
-          <label class="flex items-center space-x-2">
+          <label class="flex items-center space-x-2 relative">
             <input
+              id="gstates"
               type="checkbox"
               name="gstates"
-              value={@gstates}
+              value="true"
               class="h-4 w-4"
-              checked={@gstates != nil}
+              checked={@gstates}
             />
-            <span>Global State Flag</span>
+            <span>Global State History</span>
+            <div class="relative group inline-block">
+              <span
+                class="ml-1 inline-flex items-center justify-center w-6 h-6 rounded-full 
+                      bg-gray-300 text-gray-700 text-sm font-bold cursor-pointer"
+              >?</span>
+              <div
+                class="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 p-2 text-sm text-white 
+                      bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 
+                      transition-opacity pointer-events-none z-10"
+              >
+                Consider the trace history when computing the globalview.
+              </div>
+            </div>
           </label>
+
+
 
         </div>
 
@@ -139,12 +217,39 @@
   </div>
 </div>
 
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.5.0/dist/svg-pan-zoom.min.js"></script>
 
 <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const examples = <%= raw Jason.encode!(@examples) %>;
+
+  const select = document.getElementById("example-select");
+  const entry = document.getElementById("entry-input");
+  const editor = document.getElementById("editor");
+
+  const minLv = document.getElementById("min_lv");
+  const minGv = document.getElementById("min_gv");
+  const gstates = document.getElementById("gstates");
+
+  select.addEventListener("change", () => {
+    const key = select.value;
+    if (!key || !examples[key]) return;
+
+    const ex = examples[key];
+
+    // Fill inputs
+    entry.value = ex.entry || "";
+    editor.value = ex.code || "";
+
+    // Update checkboxes
+    minLv.checked = !!ex.min_lv;
+    minGv.checked = !!ex.min_gv;
+    gstates.checked = !!ex.gstates;
+  });
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("graph-container");
   const tabButtons = document.querySelectorAll(".tab-btn");
