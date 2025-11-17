@@ -9,10 +9,7 @@ defmodule ChorerwWeb.Telemetry do
   @impl true
   def init(_arg) do
     children = [
-      # Telemetry poller will execute the given period measurements
-      # every 10_000ms. Learn more here: https://hexdocs.pm/telemetry_metrics
-      {:telemetry_poller, measurements: periodic_measurements(), period: 10_000},
-      # Add reporters as children of your supervision tree.
+      {:telemetry_poller, measurements: periodic_measurements(), period: 5_000},
       {Telemetry.Metrics.ConsoleReporter, metrics: metrics()}
     ]
 
@@ -21,73 +18,100 @@ defmodule ChorerwWeb.Telemetry do
 
   def metrics do
     [
-      # Phoenix Metrics
-      summary("phoenix.endpoint.start.system_time",
-        unit: {:native, :millisecond}
+      # Total requests count
+      counter("phoenix.endpoint.stop.duration",
+        tag_values: fn _ -> %{} end,
+        tag: [],
+        description: "Total requests handled"
       ),
+
+      # Requests per second (aggregated in dashboard)
       summary("phoenix.endpoint.stop.duration",
-        unit: {:native, :millisecond}
+        unit: {:native, :millisecond},
+        description: "Request duration"
       ),
-      summary("phoenix.router_dispatch.start.system_time",
-        tags: [:route],
-        unit: {:native, :millisecond}
-      ),
-      summary("phoenix.router_dispatch.exception.duration",
-        tags: [:route],
-        unit: {:native, :millisecond}
-      ),
+
+      # Router breakdown (pages)
       summary("phoenix.router_dispatch.stop.duration",
         tags: [:route],
-        unit: {:native, :millisecond}
-      ),
-      summary("phoenix.socket_connected.duration",
-        unit: {:native, :millisecond}
-      ),
-      sum("phoenix.socket_drain.count"),
-      summary("phoenix.channel_joined.duration",
-        unit: {:native, :millisecond}
-      ),
-      summary("phoenix.channel_handled_in.duration",
-        tags: [:event],
-        unit: {:native, :millisecond}
+        unit: {:native, :millisecond},
+        description: "Time spent in each route"
       ),
 
-      # Database Metrics
+      # -----------------------------
+      # ACTIVE USER METRICS
+      # -----------------------------
+
+      last_value("chorerw.live.users.count",
+        description: "Current number of connected LiveView users"
+      ),
+      last_value("chorerw.live.users.peak",
+        description: "Peak number of connected LiveView users"
+      ),
+
+      # -----------------------------
+      # DATABASE METRICS
+      # -----------------------------
+
+      counter("chorerw.repo.query.count",
+        description: "How many DB queries executed"
+      ),
       summary("chorerw.repo.query.total_time",
         unit: {:native, :millisecond},
-        description: "The sum of the other measurements"
-      ),
-      summary("chorerw.repo.query.decode_time",
-        unit: {:native, :millisecond},
-        description: "The time spent decoding the data received from the database"
-      ),
-      summary("chorerw.repo.query.query_time",
-        unit: {:native, :millisecond},
-        description: "The time spent executing the query"
-      ),
-      summary("chorerw.repo.query.queue_time",
-        unit: {:native, :millisecond},
-        description: "The time spent waiting for a database connection"
-      ),
-      summary("chorerw.repo.query.idle_time",
-        unit: {:native, :millisecond},
-        description:
-          "The time the connection spent waiting before being checked out for the query"
+        description: "Total query time"
       ),
 
-      # VM Metrics
-      summary("vm.memory.total", unit: {:byte, :kilobyte}),
-      summary("vm.total_run_queue_lengths.total"),
-      summary("vm.total_run_queue_lengths.cpu"),
-      summary("vm.total_run_queue_lengths.io")
+      # -----------------------------
+      # VM METRICS
+      # -----------------------------
+      last_value("vm.memory.total", unit: :byte),
+      last_value("vm.system_counts.process_count"),
+      last_value("vm.total_run_queue_lengths.total")
     ]
   end
 
+  @doc """
+  Periodic measurements (every 5 seconds)
+  """
   defp periodic_measurements do
     [
-      # A module, function and arguments to be invoked periodically.
-      # This function must call :telemetry.execute/3 and a metric must be added above.
-      # {ChorerwWeb, :count_users, []}
+      {__MODULE__, :measure_users, []}
     ]
+  end
+
+  # Store peak users in an ETS table
+  @ets :telemetry_user_stats
+
+  def start_ets do
+    :ets.new(@ets, [:named_table, :public, :set])
+    :ets.insert(@ets, {:peak_users, 0})
+  rescue
+    _ -> :ok
+  end
+
+  # Count LiveView connections
+  def measure_users do
+    start_ets()
+
+    count =
+      Phoenix.PubSub.local_broadcasts(Chorerw.PubSub)
+      |> Enum.count()
+
+    # Update peak
+    [{:peak_users, peak}] = :ets.lookup(@ets, :peak_users)
+    new_peak = max(peak, count)
+    :ets.insert(@ets, {:peak_users, new_peak})
+
+    :telemetry.execute(
+      [:chorerw, :live, :users, :count],
+      %{count: count},
+      %{}
+    )
+
+    :telemetry.execute(
+      [:chorerw, :live, :users, :peak],
+      %{peak: new_peak},
+      %{}
+    )
   end
 end
