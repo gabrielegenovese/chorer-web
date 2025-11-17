@@ -5,9 +5,9 @@ defmodule ChorerwWeb.PageController do
     code = Map.get(params, "code", "")
     entry_point = Map.get(params, "entry_point", "")
 
-    min_lv = params["min_lv"] == "on"
-    min_gv = params["min_gv"] == "on"
-    gstates = params["gstates"] == "on"
+    min_lv = params["min_lv"] == "true"
+    min_gv = params["min_gv"] == "true"
+    gstates = params["gstates"] == "true"
 
     cleaned = Chorerw.CodeNormalizer.normalize(code)
 

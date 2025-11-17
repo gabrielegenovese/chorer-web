@@ -35,7 +35,7 @@ defmodule Chorerw.Examples do
       code: "",
       file: "priv/examples/account.erl",
       min_lv: true,
-      min_gv: false,
+      min_gv: true,
       gstates: true
     },
     "customer" => %{

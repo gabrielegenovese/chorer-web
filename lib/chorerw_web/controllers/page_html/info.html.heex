@@ -27,7 +27,7 @@
     <section>
       <h2 class="text-brand text-2xl font-semibold mb-3">Choreography Automata<sup>1</sup></h2>
       <p class="leading-relaxed">
-        A <strong class="text-blue-600">Choreography Automaton</strong> is a labelled transition system that represents the
+        A Choreography Automaton is a labelled transition system that represents the
         communication behaviour of concurrent systems. Each transition is annotated with a
         communication action (such as sending or receiving messages), and the automaton describes all
         possible evolutions of the system.
@@ -44,7 +44,7 @@
     <section>
       <h2 class="text-brand text-2xl font-semibold mb-3">Local View</h2>
       <p class="leading-relaxed">
-        A <strong class="text-blue-600">Local View</strong> denotes the behaviour of a <em>single function</em> within
+        A Local View denotes the behaviour of a <em class="text-blue-600">single function</em> within
         the program. It focuses on the transitions that originate from that function, describing the
         messages it sends and receives along with possible internal evolutions.
       </p>
@@ -54,7 +54,7 @@
     <section>
       <h2 class="text-brand text-2xl font-semibold mb-3">Global View</h2>
       <p class="leading-relaxed">
-        The <strong class="text-blue-600">Global View</strong> represents the entire behaviour of a system in a single automaton.
+        The Global View represents the entire behaviour of a system in a single automaton.
         Its transitions describe communication actions across all processes. This
         gives an overview of the complete behaviour of the program.
       </p>
@@ -67,8 +67,9 @@
       <p class="leading-relaxed mb-6">
         Chorer reconstructs the possible message-passing interactions between Erlang processes and
         represents them using <em>Local Views</em> and a <em>Global View</em>.  
-        The extraction follows a bottom-up, over-approximating approach: any communication that
-        <em>might</em> occur is included. This ensures that potential issues, including subtle
+        The extraction follows a bottom-up, <em class="text-blue-600">over-approximating</em>
+        approach: any communication that
+        might occur is included. This ensures that potential issues, including subtle
         concurrency bugs, are highlighted without being missed.
       </p>
 
@@ -80,11 +81,11 @@
           Chorer identifies processes, calls, and communication constructs.
         </li>
         <li>
-          For each discovered actor, the tool extracts a <strong class="text-blue-600">Local View</strong>, describing
+          For each discovered actor, the tool extracts a Local View, describing
           the behavior of that actor in isolation, including its possible send/receive actions.
         </li>
         <li>
-          All Local Views are combined into a <strong class="text-blue-600">Global View</strong>, reconstructing the
+          All Local Views are <em class="text-blue-600">combined</em> into a Global View, reconstructing the
           inter-process communication structure of the whole system.
         </li>
         <li>
@@ -96,8 +97,8 @@
     <p class="leading-relaxed mt-3">
       For a deeper explanation of the ideas behind Chorer, including its theoretical foundations,
       strengths, and limitations, please refer to the accompanying 
-      <a href="https://gabrigeno.cappuccino.ovh/pdf/forte/forte.pdf" class="text-blue-600 underline">paper</a><sup>2</sup> and 
-      <a href="https://gabrigeno.cappuccino.ovh/pdf/forte/poster.pdf" class="text-blue-600 underline">poster</a>.
+      <a href="https://gabrigeno.cappuccino.ovh/pdf/forte/forte.pdf" class="text-blue-500 underline">paper</a><sup>2</sup> and 
+      <a href="https://gabrigeno.cappuccino.ovh/pdf/forte/poster.pdf" class="text-blue-500 underline">poster</a>.
     </p>
 
     </section>
@@ -123,6 +124,25 @@
 
       </ol>
     </section>
-
+    <footer class="mt-10 py-4 text-center text-sm text-gray-500 border-t">
+      <span>Powered by </span>
+      <a
+        href="https://github.com/phoenixframework/phoenix"
+        class="text-blue-600 hover:underline"
+        target="_blank" rel="noopener noreferrer"
+      >
+        Phoenix Framework
+      </a>
+      <span> • </span>
+      <span>&copy; <%= Date.utc_today().year %> Gabriele Genovese</span>
+      <span> • </span>
+      <a
+        href="https://github.com/gabrielegenovese/chorer-web"
+        class="text-blue-600 hover:underline"
+        target="_blank" rel="noopener noreferrer"
+      >
+        Repository
+      </a>
+    </footer>
   </div>
 </div>
