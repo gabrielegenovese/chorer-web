@@ -1,18 +1,23 @@
-# Chorerw
+# Chorer Web
 
-To start your Phoenix server:
+_Chorer Web_ is the web interface for **Chorer**, a static analysis tool for reasoning about message-passing concurrency in Erlang systems.  
+The core Chorer project is available [here](https://github.com/gabrielegenovese/chorer).
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+This web frontend provides:
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+- A browser-based Erlang code editor with syntax highlighting.
+- Automatic extraction of Local Views and Global Views.
+- Interactive visualization of the resulting DOT graphs.
+- Built-in example loader for quick experimentation.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+---
 
-## Learn more
+## Running the Project for development
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+Clone the repository and start the Phoenix server:
+
+```bash
+sudo systemctl start postgresql
+mix deps.get
+mix phx.server
+```
