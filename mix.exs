@@ -3,7 +3,7 @@ defmodule Chorerw.MixProject do
 
   def project do
     [
-      app: :chorerw,
+      app: :chorer_web,
       version: "0.1.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -32,7 +32,7 @@ defmodule Chorerw.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:chorer, "~> 1.0"},
+      {:chorer, "~> 1.1.0"},
       {:phoenix, "~> 1.7.20"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.10"},
