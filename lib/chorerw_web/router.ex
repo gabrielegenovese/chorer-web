@@ -1,6 +1,21 @@
 defmodule ChorerwWeb.Router do
   use ChorerwWeb, :router
 
+  defp authenticate_dashboard(conn, _opts) do
+    username = System.get_env("DASHBOARD_USER")
+    password = System.get_env("DASHBOARD_PASS")
+
+    case Plug.BasicAuth.parse_basic_auth(conn) do
+      {^username, ^password} ->
+        conn
+
+      _ ->
+        conn
+        |> Plug.BasicAuth.request_basic_auth()
+        |> halt()
+    end
+  end
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -42,6 +57,19 @@ defmodule ChorerwWeb.Router do
 
       live_dashboard "/dashboard", metrics: ChorerwWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
+
+  if Mix.env() == :prod do
+    import Phoenix.LiveDashboard.Router
+
+    pipeline :dashboard_auth do
+      plug :authenticate_dashboard
+    end
+
+    scope "/" do
+      pipe_through [:browser, :dashboard_auth]
+      live_dashboard "/dashboard", metrics: ChorerwWeb.Telemetry
     end
   end
 end
