@@ -68,9 +68,18 @@
         Chorer reconstructs the possible message-passing interactions between Erlang processes and
         represents them using <em>Local Views</em> and a <em>Global View</em>.  
         The extraction follows a bottom-up, <em class="text-blue-600">over-approximating</em>
-        approach: any communication that
-        might occur is included. This ensures that potential issues, including subtle
-        concurrency bugs, are highlighted without being missed.
+        approach: any communication that might occur is included. This ensures that potential issues,
+        including subtle concurrency bugs, are highlighted without being missed.  
+        Deadlocks are highlighted directly in the Global View graph: 
+        <span class="font-semibold text-red-600 underline">they appear as red states</span>.
+      </p>
+
+      <!-- PROTOTYPE WARNING -->
+      <p class="leading-relaxed mb-6">
+        <span class="font-bold text-red-700 underline">
+          ⚠ This tool is an early prototype and still under active development, bugs, incomplete features,
+          and unexpected behaviors are to be expected.
+        </span>
       </p>
 
       <h3 class="text-brand text-xl font-semibold mb-3">Extraction steps</h3>
@@ -85,8 +94,8 @@
           the behavior of that actor in isolation, including its possible send/receive actions.
         </li>
         <li>
-          All Local Views are <em class="text-blue-600">combined</em> into a Global View, reconstructing the
-          inter-process communication structure of the whole system.
+          All Local Views are <em class="text-blue-600">combined</em> into a Global View,
+          reconstructing the inter-process communication structure of the whole system.
         </li>
         <li>
           The generated automata can be minimized and further analyzed to detect inconsistent
@@ -94,14 +103,17 @@
         </li>
       </ol>
 
-    <p class="leading-relaxed mt-3">
-      For a deeper explanation of the ideas behind Chorer, including its theoretical foundations,
-      strengths, and limitations, please refer to the accompanying 
-      <a href="https://gabrigeno.cappuccino.ovh/pdf/forte/forte.pdf" class="text-blue-500 underline">paper</a><sup>2</sup> and 
-      <a href="https://gabrigeno.cappuccino.ovh/pdf/forte/poster.pdf" class="text-blue-500 underline">poster</a>.
-    </p>
+      <p class="leading-relaxed mt-3">
+        For a deeper explanation of the ideas behind Chorer, including its theoretical foundations,
+        strengths, and limitations, please refer to the accompanying 
+        <a href="https://gabrigeno.cappuccino.ovh/pdf/thesis/bachelor.pdf" class="text-blue-500 underline">thesis</a><sup>2</sup>
+        (outdated, only in italian), 
+        <a href="https://gabrigeno.cappuccino.ovh/pdf/forte/forte.pdf" class="text-blue-500 underline">paper</a><sup>3</sup> and 
+        <a href="https://gabrigeno.cappuccino.ovh/pdf/forte/poster.pdf" class="text-blue-500 underline">poster</a>.-
+      </p>
 
-    </section>
+</section>
+
 
 
     <!-- SECTION 6: REFERENCES -->
@@ -113,6 +125,11 @@
           Barbanera, Franco, Ivan Lanese, and Emilio Tuosto. "Choreography automata." 
           International Conference on Coordination Languages and Models. Cham: Springer 
           International Publishing, 2020.
+        </li>
+
+        <li>
+          Genovese, Gabriele. "ChorEr: un analizzatore statico per generare Automi 
+          Coreografici da codice sorgente Erlang." (2023).
         </li>
 
         <li>
