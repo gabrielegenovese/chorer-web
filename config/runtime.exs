@@ -20,17 +20,11 @@ if config_env() == :prod do
       System.get_env("PHX_ORIGIN") || "https://#{host}"
     ]
 
-  db_user = System.get_env("DB_USERNAME")
-  db_pass = System.get_env("DB_PASSWORD")
-  db_name = System.get_env("DB_DATABASE")
-  db_host = System.get_env("DB_HOSTNAME")
-  db_port = String.to_integer(System.get_env("DB_PORT") || "5432")
-
   config :chorerw, Chorerw.Repo,
-    username: db_user,
-    password: db_pass,
-    database: db_name,
-    hostname: db_host,
-    port: db_port,
+    username: System.get_env("DB_USERNAME"),
+    password: System.get_env("DB_PASSWORD"),
+    database: System.get_env("DB_DATABASE"),
+    hostname: System.get_env("DB_HOSTNAME"),
+    port: String.to_integer(System.get_env("DB_PORT") || "5432"),
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 end
