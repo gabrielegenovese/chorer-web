@@ -45,31 +45,31 @@ defmodule ChorerwWeb.Router do
     end
   end
 
-  defp authenticate_dashboard(conn, _opts) do
-    username = System.get_env("DASHBOARD_USER")
-    password = System.get_env("DASHBOARD_PASS")
+  # defp authenticate_dashboard(conn, _opts) do
+  #   username = System.get_env("DASHBOARD_USER")
+  #   password = System.get_env("DASHBOARD_PASS")
 
-    case Plug.BasicAuth.parse_basic_auth(conn) do
-      {^username, ^password} ->
-        conn
+  #   case Plug.BasicAuth.parse_basic_auth(conn) do
+  #     {^username, ^password} ->
+  #       conn
 
-      _ ->
-        conn
-        |> Plug.BasicAuth.request_basic_auth()
-        |> halt()
-    end
-  end
+  #     _ ->
+  #       conn
+  #       |> Plug.BasicAuth.request_basic_auth()
+  #       |> halt()
+  #   end
+  # end
 
-  if Mix.env() == :prod do
-    import Phoenix.LiveDashboard.Router
+  # if Mix.env() == :prod do
+  #   import Phoenix.LiveDashboard.Router
 
-    pipeline :dashboard_auth do
-      plug :authenticate_dashboard
-    end
+  #   pipeline :dashboard_auth do
+  #     plug :authenticate_dashboard
+  #   end
 
-    scope "/" do
-      pipe_through [:browser, :dashboard_auth]
-      live_dashboard "/dashboard", metrics: ChorerwWeb.Telemetry
-    end
-  end
+  #   scope "/" do
+  #     pipe_through [:browser, :dashboard_auth]
+  #     live_dashboard "/dashboard", metrics: ChorerwWeb.Telemetry
+  #   end
+  # end
 end

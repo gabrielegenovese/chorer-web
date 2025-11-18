@@ -17,8 +17,7 @@ philo(F1, F2) ->
         ok -> eat
     end,
     F1 ! {self(), release},
-    F2 ! {self(), release},
-    philo(F1, F2).
+    F2 ! {self(), release}.
 
 fork() ->
     receive
@@ -28,4 +27,10 @@ fork() ->
                 {P, release} -> ok
             end
     end,
-    fork().
+    receive
+        {P, req} ->
+            P ! ok,
+            receive
+                {P, release} -> ok
+            end
+    end.

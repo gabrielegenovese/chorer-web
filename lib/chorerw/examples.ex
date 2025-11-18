@@ -2,33 +2,6 @@ defmodule Chorerw.Examples do
   @moduledoc false
 
   @examples_config %{
-    "tictacloop" => %{
-      title: "Tit-Tac with loop",
-      entry: "start/0",
-      code: "",
-      file: "priv/examples/tictacloop.erl",
-      min_lv: true,
-      min_gv: false,
-      gstates: true
-    },
-    "dining" => %{
-      title: "Two Dining Philosophers",
-      entry: "main/0",
-      code: "",
-      file: "priv/examples/dining.erl",
-      min_lv: true,
-      min_gv: false,
-      gstates: true
-    },
-    "async" => %{
-      title: "Two Async Communications",
-      entry: "main/0",
-      code: "",
-      file: "priv/examples/async.erl",
-      min_lv: true,
-      min_gv: false,
-      gstates: true
-    },
     "account" => %{
       title: "Bank Account Race Condition",
       entry: "main/0",
@@ -38,11 +11,38 @@ defmodule Chorerw.Examples do
       min_gv: true,
       gstates: true
     },
+    "async" => %{
+      title: "Two Async Communications",
+      entry: "main/0",
+      code: "",
+      file: "priv/examples/async.erl",
+      min_lv: true,
+      min_gv: false,
+      gstates: false
+    },
     "customer" => %{
       title: "Customer Example",
       entry: "main/0",
       code: "",
       file: "priv/examples/customer.erl",
+      min_lv: true,
+      min_gv: false,
+      gstates: false
+    },
+    "dining" => %{
+      title: "Two Dining Philosophers",
+      entry: "main/0",
+      code: "",
+      file: "priv/examples/dining.erl",
+      min_lv: false,
+      min_gv: false,
+      gstates: false
+    },
+    "tictacloop" => %{
+      title: "Tit-Tac with loop",
+      entry: "start/0",
+      code: "",
+      file: "priv/examples/tictacloop.erl",
       min_lv: true,
       min_gv: false,
       gstates: true
@@ -54,7 +54,7 @@ defmodule Chorerw.Examples do
       file: "priv/examples/tictacstop.erl",
       min_lv: true,
       min_gv: false,
-      gstates: true
+      gstates: false
     }
   }
 

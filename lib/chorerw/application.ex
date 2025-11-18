@@ -8,7 +8,7 @@ defmodule Chorerw.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      ChorerwWeb.Telemetry,
+      # ChorerwWeb.Telemetry,
       Chorerw.Repo,
       {DNSCluster, query: Application.get_env(:chorerw, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Chorerw.PubSub},
